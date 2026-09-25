@@ -1,6 +1,8 @@
 package org.example.firstpetprojectexchanger.model;
 
 public enum PaymentStatus {
-    ACTIVE,
-    PASSIVE
+    PENDING,
+    COMPLETED,
+    FAILED,
+    ROLLED_BACK
 }

@@ -1,6 +1,8 @@
 package org.example.firstpetprojectexchanger.model;
 
 public enum TransferStatus {
-    Ok,
-    NeOk
+    PENDING,
+    COMPLETED,
+    ROLLED_BACK,
+    FAILED
 }

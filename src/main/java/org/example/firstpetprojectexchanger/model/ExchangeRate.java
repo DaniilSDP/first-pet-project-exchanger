@@ -3,30 +3,34 @@ package org.example.firstpetprojectexchanger.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "exchange_rates")
-
 public class ExchangeRate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "base_currency", nullable = false, length = 3)
+    @Column(nullable = false, length = 3)
     private String baseCurrency;
 
-    @Column(name = "quote_currency", nullable = false, length = 3)
+    @Column(nullable = false, length = 3)
     private String quoteCurrency;
 
     @Column(nullable = false, precision = 28, scale = 12)
     private BigDecimal rate;
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    private Instant updatedAt;
 
     public ExchangeRate() {
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
     }
 
     public Long getId() {
@@ -61,21 +65,28 @@ public class ExchangeRate {
         this.rate = rate;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+
 }
 
 /*
-exchange_rates
-id : BIGINT «PK»
-base_currency : VARCHAR(3)
-quote_currency : VARCHAR(3)
-rate : NUMERIC(28,12)
-updated_at : TIMESTAMPTZ
-UK (base_currency, quote_currency)
+ExchangeRate
+
+-id: Long
+-baseCurrency: String «immutable»
+-quoteCurrency: String «immutable»
+-updatedAt: Instant
+
++все геттеры/сеттеры полей
+
+-rate: BigDecimal «NUMERIC(28,12)»
+
+-onPersist(): void «@PrePersist @PreUpdate»
  */

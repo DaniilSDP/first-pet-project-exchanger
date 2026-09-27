@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,11 +13,15 @@ import java.util.List;
 @Table(name = "payment_transactions")
 public class PaymentTransaction {
 
+    public enum PaymentType {TOP_UP, WITHDRAW}
+
+    public enum PaymentStatus {PENDING, COMPLETED, FAILED, ROLLED_BACK}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "idempotency_key", nullable = false, unique = true, length = 64)
+    @Column(nullable = false, unique = true, length = 64)
     private String idempotencyKey;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -43,33 +47,52 @@ public class PaymentTransaction {
     @Enumerated(EnumType.STRING)
     @Column(length = 16)
     @NotBlank
-    private PaymentStatus status;
+    private PaymentStatus status = PaymentStatus.PENDING;
 
     @NotBlank
-    @Column(name = "external_payment_id", length = 64, nullable = false)
+    @Column(length = 64, nullable = false)
     private String externalPaymentId;
 
     @NotBlank
-    @Column(name = "failure_reason", length = 1000, nullable = false)
+    @Column(length = 1000, nullable = false)
     private String failureReason;
 
     @NotNull
-    private Integer attempts;
+    private Integer attempts = 0;
 
     @Version
     @NotNull
     private Long version;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    private Instant updatedAt;
 
     @OneToMany(mappedBy = "payment")
     private List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
     public PaymentTransaction() {
+    }
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
     public Long getId() {
@@ -168,7 +191,6 @@ public class PaymentTransaction {
         this.version = version;
     }
 
-
     public List<LedgerEntry> getLedgerEntries() {
         return ledgerEntries;
     }
@@ -176,37 +198,27 @@ public class PaymentTransaction {
     public void setLedgerEntries(List<LedgerEntry> ledgerEntries) {
         this.ledgerEntries = ledgerEntries;
     }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }
 /*
-    payment_transactions
-id : BIGINT «PK»
-idempotency_key : VARCHAR(64) «UK»
-user_id : BIGINT «FK»
-wallet_id : BIGINT «FK»
-type : VARCHAR(16)
-amount : NUMERIC(28,12)
-currency : VARCHAR(3)
-status : VARCHAR(16)
-    external_payment_id : VARCHAR(64)
-    failure_reason : VARCHAR(1000)
-attempts : INTEGER
-version : BIGINT
-created_at : TIMESTAMPTZ
-updated_at : TIMESTAMPTZ
+   PaymentTransaction
+
+-id: Long
+-idempotencyKey: String «UNIQUE»
+-user: User «NOT NULL»
+-wallet: Wallet «NOT NULL»
+-type: PaymentType
+-amount: BigDecimal
+-currency: String
+-status: PaymentStatus = PENDING
+-externalPaymentId: String
+-failureReason: String
+-attempts: int = 0
+-version: long «@Version»
+-createdAt: Instant
+-updatedAt: Instant
+
++все геттеры/сеттеры полей
+
+-onCreate(): void «@PrePersist»
+-onUpdate(): void «@PreUpdate»
  */

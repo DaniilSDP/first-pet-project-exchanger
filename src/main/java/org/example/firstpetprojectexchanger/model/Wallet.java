@@ -11,6 +11,8 @@ import java.util.List;
 @Table(name = "wallets")
 public class Wallet {
 
+    public enum WalletStatus {ACTIVE, FROZEN, CLOSED}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,16 +25,16 @@ public class Wallet {
     private String currency;
 
     @Column(nullable = false, precision = 28, scale = 12)
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
-    private WalletStatus status;
+    private WalletStatus status = WalletStatus.ACTIVE;
 
     @Version
     private Long version;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(nullable = false)
     private Instant createdAt;
 
     @OneToMany(mappedBy = "wallet")
@@ -48,6 +50,15 @@ public class Wallet {
     private List<Transfer> incomingTransfers = new ArrayList<>();
 
     public Wallet() {
+    }
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
     public Long getId() {
@@ -98,14 +109,6 @@ public class Wallet {
         this.version = version;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public List<LedgerEntry> getLedgerEntries() {
         return ledgerEntries;
     }
@@ -140,13 +143,23 @@ public class Wallet {
 }
 
 /*
-wallets
-id : BIGINT «PK»
-user_id : BIGINT «FK»
-currency : VARCHAR(3)
-balance : NUMERIC(28,12)
-status : VARCHAR(16)
-version : BIGINT
-created_at : TIMESTAMPTZ
-UK (user_id, currency)
+Wallet
+
+-id: Long
+-user: User «LAZY, NOT NULL»
+-currency: String «length=3, immutable»
+-status: WalletStatus = ACTIVE
+-version: long «@Version»
+-createdAt: Instant
+-balance: BigDecimal = 0 «NUMERIC(28,12)»
+
++getId()/setId(Long)
++getUser()/setUser(User)
++getCurrency()/setCurrency(String)
++getStatus()/setStatus(Status)
++getVersion(): long
++getBalance()/setBalance(BigDecimal)
++getCreatedAt(): Instant
+
+-onCreate(): void «@PrePersist»
  */

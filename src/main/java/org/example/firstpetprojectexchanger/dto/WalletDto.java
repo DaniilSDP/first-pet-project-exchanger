@@ -1,25 +1,46 @@
 package org.example.firstpetprojectexchanger.dto;
 
-import org.example.firstpetprojectexchanger.model.WalletStatus;
+import org.example.firstpetprojectexchanger.model.Wallet;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record WalletDto(
 
         Long id,
-
-        Long userId,
-
         String currency,
-
+        String status,
         BigDecimal balance,
-
-        WalletStatus status,
-
-        Long version,
-
-        LocalDateTime createdAt
+        Instant createdAt
 
 ) {
+
+    public static WalletDto of(
+
+            Wallet wallet,
+            BigDecimal balance
+
+    ) {
+        return new WalletDto(
+
+                wallet.getId(),
+                wallet.getCurrency(),
+                wallet.getStatus().toString(),
+                balance,
+                wallet.getCreatedAt()
+
+        );
+    }
 }
+
+/*
+WalletDto
+
++id: Long
++currency: String
++status: String
++balance: BigDecimal
++createdAt: Instant
+
++of(Wallet, BigDecimal): WalletDto
+ */

@@ -1,13 +1,24 @@
 package org.example.firstpetprojectexchanger.model;
 
+
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
-@Table(name = "ledger_entries")
+@Table(
+        name = "ledger_entries",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_ledger_wallet_operation",
+                        columnNames = {"wallet_id", "operation_key"}
+                )
+        }
+)
 public class LedgerEntry {
+
+    public enum LedgerEntryType {DEBIT, CREDIT}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,13 +37,13 @@ public class LedgerEntry {
     private PaymentTransaction payment;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "entry_type", nullable = false, length = 8)
+    @Column(nullable = false, length = 6)
     private LedgerEntryType entryType;
 
     @Column(nullable = false, precision = 28, scale = 12)
     private BigDecimal amount;
 
-    @Column(name = "balance_after", nullable = false, precision = 28, scale = 12)
+    @Column(nullable = false, precision = 28, scale = 12)
     private BigDecimal balanceAfter;
 
     @Column(nullable = false, length = 3)
@@ -41,13 +52,22 @@ public class LedgerEntry {
     @Column(length = 500)
     private String description;
 
-    @Column(name = "operation_key", nullable = false, length = 120)
+    @Column(nullable = false, length = 120)
     private String operationKey;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private Instant createdAt;
 
     public LedgerEntry() {
+    }
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
     public Long getId() {
@@ -129,26 +149,24 @@ public class LedgerEntry {
     public void setOperationKey(String operationKey) {
         this.operationKey = operationKey;
     }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }
 /*
-    ledger_entries
-id : BIGINT «PK»
-wallet_id : BIGINT «FK»
-    transfer_id : BIGINT «FK»
-    payment_id : BIGINT «FK»
-entry_type : VARCHAR(8)
-amount : NUMERIC(28,12)
-balance_after : NUMERIC(28,12)
-currency : VARCHAR(3)
-    description : VARCHAR(500)
-operation_key : VARCHAR(120) «UK per wallet»
-created_at : TIMESTAMPTZ
+   LedgerEntry
+
+-id: Long
+-wallet: Wallet «NOT NULL»
+-transfer: Transfer «nullable FK»
+-payment: PaymentTransaction «nullable FK»
+-entryType: EntryType
+-amount: BigDecimal
+-balanceAfter: BigDecimal
+-currency: String
+-description: String
+-createdAt: Instant
+
++все геттеры/сеттеры полей
+
+-operationKey: String «UNIQUE(wallet_id, operation_key)»
+
+-onCreate(): void «@PrePersist»
  */

@@ -1,33 +1,49 @@
 package org.example.firstpetprojectexchanger.dto;
 
-import org.example.firstpetprojectexchanger.model.UserRole;
-import org.example.firstpetprojectexchanger.model.UserStatus;
+import org.example.firstpetprojectexchanger.model.User;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record UserDto(
 
         Long id,
-
         String email,
-
         String firstName,
-
         String lastName,
+        String role,
+        String status,
+        Instant createdAt
 
-        UserRole role,
-
-        UserStatus status,
-
-        Integer failedLoginAttempts,
-
-        LocalDateTime createdAt,
-
-        LocalDateTime updatedAt
 ) {
 
+    public static UserDto from(User user) {
+
+        return new UserDto(
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getRole().toString(),
+                user.getStatus().toString(),
+                user.getCreatedAt()
+        );
+    }
 }
 
+/*
+«record»
+UserDto
+
++id: Long
++email: String
++firstName: String
++lastName: String
++role: String
++status: String
++createdAt: Instant
+
++from(User): UserDto
+ */
 
 
 

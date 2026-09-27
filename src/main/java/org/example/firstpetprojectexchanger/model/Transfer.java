@@ -12,11 +12,13 @@ import java.util.List;
 @Table(name = "transfers")
 public class Transfer {
 
+    public enum TransferStatus {PENDING, COMPLETED, ROLLED_BACK, FAILED}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "idempotency_key", nullable = false, unique = true, length = 64)
+    @Column(nullable = false, unique = true, length = 64)
     private String idempotencyKey;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -37,36 +39,44 @@ public class Transfer {
     @Column(nullable = false, precision = 28, scale = 12)
     private BigDecimal amount;
 
-    @Column(name = "converted_amount", precision = 28, scale = 12)
+    @Column(precision = 28, scale = 12)
     private BigDecimal convertedAmount;
 
-    @Column(name = "fx_rate", precision = 28, scale = 12)
+    @Column(precision = 28, scale = 12)
     private BigDecimal fxRate;
 
     @Column(nullable = false, precision = 28, scale = 12)
-    private BigDecimal fee;
+    private BigDecimal fee = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
-    private TransferStatus status;
+    private TransferStatus status = TransferStatus.PENDING;
 
-    @Column(name = "error_message", length = 1000)
+    @Column(length = 1000)
     private String errorMessage;
 
     @Version
     @NotNull
     private Long version;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(nullable = false)
     private Instant createdAt;
 
-    @Column(name = "completed_at")
     private Instant completedAt;
 
     @OneToMany(mappedBy = "transfer")
     private List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
     public Transfer() {
+    }
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
     public Long getId() {
@@ -173,14 +183,6 @@ public class Transfer {
         this.version = version;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public Instant getCompletedAt() {
         return completedAt;
     }
@@ -198,20 +200,29 @@ public class Transfer {
     }
 }
 /*
-            transfers
-id : BIGINT «PK»
-idempotency_key : VARCHAR(64) «UK»
-user_id : BIGINT «FK»
-    from_wallet_id : BIGINT «FK»
-    to_wallet_id : BIGINT «FK»
-currency : VARCHAR(3)
-amount : NUMERIC(28,12)
-    converted_amount : NUMERIC(28,12)
-    fx_rate : NUMERIC(28,12)
-fee : NUMERIC(28,12)
-status : VARCHAR(16)
-    error_message : VARCHAR(1000)
-version : BIGINT
-created_at : TIMESTAMPTZ
-    completed_at : TIMESTAMPTZ
+ Transfer
+
+-id: Long
+-idempotencyKey: String «UNIQUE»
+-user: User «NOT NULL»
+-fromWallet: Wallet «LAZY»
+-toWallet: Wallet «LAZY»
+-currency: String
+-amount: BigDecimal
+-convertedAmount: BigDecimal
+-fxRate: BigDecimal
+-fee: BigDecimal = 0
+-status: TransferStatus = PENDING
+-errorMessage: String
+-version: long «@Version»
+-createdAt: Instant
+-completedAt: Instant
+
++все геттеры/сеттеры полей
+
++getIdempotencyKey()/setIdempotencyKey(String)
+
++setCompletedAt(Instant)
+
+-onCreate(): void «@PrePersist»
  */

@@ -2,13 +2,18 @@ package org.example.firstpetprojectexchanger.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Table(name = "users")
 public class User {
+
+    public enum Role {USER, ADMIN, SYSTEM}
+
+    public enum Status {ACTIVE, LOCKED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,31 +22,31 @@ public class User {
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(nullable = false, length = 255)
     private String passwordHash;
 
-    @Column(name = "first_name", length = 120)
+    @Column(length = 120)
     private String firstName;
 
-    @Column(name = "last_name", length = 120)
+    @Column(length = 120)
     private String lastName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
-    private UserRole role;
+    private Role role = Role.USER;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
-    private UserStatus status;
+    private Status status = Status.ACTIVE;
 
-    @Column(nullable = false, name = "failed_login_attempts")
-    private Integer failedLoginAttempts;
+    @Column(nullable = false)
+    private Integer failedLoginAttempts = 0;
 
-    @Column(nullable = false, name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
 
-    @Column(nullable = false, name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(nullable = false)
+    private Instant updatedAt;
 
     @OneToMany(mappedBy = "user")
     private List<Wallet> wallets = new ArrayList<>();
@@ -53,6 +58,17 @@ public class User {
     private List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 
     public User() {
+    }
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = Instant.now();
     }
 
     public Long getId() {
@@ -95,19 +111,19 @@ public class User {
         this.lastName = lastName;
     }
 
-    public UserRole getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(UserRole role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
-    public UserStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(UserStatus status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -117,22 +133,6 @@ public class User {
 
     public void setFailedLoginAttempts(Integer failedLoginAttempts) {
         this.failedLoginAttempts = failedLoginAttempts;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public List<Wallet> getWallets() {
@@ -158,18 +158,41 @@ public class User {
     public void setPaymentTransactions(List<PaymentTransaction> paymentTransactions) {
         this.paymentTransactions = paymentTransactions;
     }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 }
 
 /*
-users
-id : BIGINT «PK»
-email : VARCHAR(255) «UK»
-password_hash : VARCHAR(255)
-    first_name : VARCHAR(120)
-    last_name : VARCHAR(120)
-role : VARCHAR(16)
-status : VARCHAR(16)
-failed_login_attempts : INTEGER
-created_at : TIMESTAMPTZ
-updated_at : TIMESTAMPTZ
+User
+-id: Long
+-email: String
+-passwordHash: String
+-firstName: String
+-lastName: String
+-role: Role = USER
+-status: UserStatus = ACTIVE
+-failedLoginAttempts: int = 0
+-createdAt: Instant
+-updatedAt: Instant
+
++getId()/setId(Long)
++getEmail()/setEmail(String)
++getPasswordHash()/setPasswordHash(String)
++getFirstName()/setFirstName(String)
++getLastName()/setLastName(String)
++getRole()/setRole(Role)
++getStatus()/setStatus(Status)
++getFailedLoginAttempts()/setFailedLoginAttempts(int)
+
++getCreatedAt(): Instant
++getUpdatedAt(): Instant
+
+-onCreate(): void «@PrePersist»
+-onUpdate(): void «@PreUpdate»
  */

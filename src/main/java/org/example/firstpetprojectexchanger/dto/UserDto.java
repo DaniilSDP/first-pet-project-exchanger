@@ -23,8 +23,8 @@ public record UserDto(
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getRole().toString(),
-                user.getStatus().toString(),
+                user.getRole() != null ? user.getRole().name() : null,
+                user.getStatus() != null ? user.getStatus().name() : null,
                 user.getCreatedAt()
         );
     }

@@ -25,8 +25,8 @@ public record LedgerEntryDto(
 
                 ledgerEntry.getId(),
                 ledgerEntry.getWallet().getId(),
-                ledgerEntry.getTransfer().getId(),
-                ledgerEntry.getPayment().getId(),
+                ledgerEntry.getTransfer() == null ? null : ledgerEntry.getTransfer().getId(),
+                ledgerEntry.getPayment() == null ? null : ledgerEntry.getPayment().getId(),
                 ledgerEntry.getAmount(),
                 ledgerEntry.getBalanceAfter(),
                 ledgerEntry.getCurrency(),

@@ -21,7 +21,7 @@ public class PaymentTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 64)
+    @Column(name = "idempotency_key", nullable = false, unique = true, length = 64)
     private String idempotencyKey;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -37,11 +37,9 @@ public class PaymentTransaction {
     private PaymentType type;
 
     @Column(nullable = false, precision = 28, scale = 12)
-    @NotNull
     private BigDecimal amount;
 
     @Column(nullable = false, length = 3)
-    @NotBlank
     private String currency;
 
     @Enumerated(EnumType.STRING)
@@ -49,27 +47,25 @@ public class PaymentTransaction {
     @NotBlank
     private PaymentStatus status = PaymentStatus.PENDING;
 
-    @NotBlank
-    @Column(length = 64, nullable = false)
+    @Column(name = "external_payment_id", length = 64)
     private String externalPaymentId;
 
-    @NotBlank
-    @Column(length = 1000, nullable = false)
+    @Column(name = "failure_reason", length = 1000)
     private String failureReason;
 
-    @NotNull
-    private Integer attempts = 0;
+    @Column(nullable = false)
+    private int attempts = 0;
 
     @Version
-    @NotNull
-    private Long version;
-
     @Column(nullable = false)
+    private long version;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
+///////????????????????????????????????????????
     @OneToMany(mappedBy = "payment")
     private List<LedgerEntry> ledgerEntries = new ArrayList<>();
 

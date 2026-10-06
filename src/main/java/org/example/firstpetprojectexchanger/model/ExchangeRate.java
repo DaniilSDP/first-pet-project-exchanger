@@ -13,23 +13,24 @@ public class ExchangeRate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 3)
+    @Column(name = "base_currency", nullable = false, length = 3, updatable = false)
     private String baseCurrency;
 
-    @Column(nullable = false, length = 3)
+    @Column(name = "quote_currency", nullable = false, length = 3, updatable = false)
     private String quoteCurrency;
 
     @Column(nullable = false, precision = 28, scale = 12)
     private BigDecimal rate;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     public ExchangeRate() {
     }
 
+    @PrePersist
     @PreUpdate
-    void onUpdate() {
+    void onPersist() {
         updatedAt = Instant.now();
     }
 
@@ -37,9 +38,6 @@ public class ExchangeRate {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getBaseCurrency() {
         return baseCurrency;
@@ -69,11 +67,7 @@ public class ExchangeRate {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-
+   
 }
 
 /*

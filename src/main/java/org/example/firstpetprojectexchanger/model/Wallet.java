@@ -32,11 +32,12 @@ public class Wallet {
     private WalletStatus status = WalletStatus.ACTIVE;
 
     @Version
-    private Long version;
-
     @Column(nullable = false)
-    private Instant createdAt;
+    private long version;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+////////////////////???????????????????????????
     @OneToMany(mappedBy = "wallet")
     private List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
@@ -65,10 +66,7 @@ public class Wallet {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    
     public User getUser() {
         return user;
     }
@@ -105,10 +103,7 @@ public class Wallet {
         return version;
     }
 
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
+    
     public List<LedgerEntry> getLedgerEntries() {
         return ledgerEntries;
     }

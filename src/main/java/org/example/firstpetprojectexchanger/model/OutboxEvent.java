@@ -18,13 +18,13 @@ public class OutboxEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 32)
+    @Column(name = "aggregate_type", nullable = false, length = 32)
     private String aggregateType;
 
-    @Column(nullable = false, length = 64)
+    @Column(name = "aggregate_id", nullable = false, length = 64)
     private String aggregateId;
 
-    @Column(nullable = false, length = 64)
+    @Column(name = "event_type", nullable = false, length = 64)
     private String eventType;
 
     @JdbcTypeCode(SqlTypes.JSON)
@@ -32,24 +32,24 @@ public class OutboxEvent {
     private String payload;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 16)
-    @NotBlank
+    @Column(nullable = false, length = 16)
     private OutboxStatus status = OutboxStatus.PENDING;
 
-    @NotNull
-    private Integer attempts = 0;
-
     @Column(nullable = false)
-    private Instant availableAt;
+    private int attempts = 0;
 
-    @Column(nullable = false)
+    @Column(name = "available_at", nullable = false)
+    private Instant availableAt = Instant.now();
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "published_at")
     private Instant publishedAt;
 
     @Version
-    @NotNull
-    private Long version;
+    @Column(nullable = false)
+    private long version;
 
     public OutboxEvent() {
     }
@@ -57,15 +57,13 @@ public class OutboxEvent {
     @PrePersist
     void onCreate() {
         createdAt = Instant.now();
+        availableAt = Instant.now();
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getAggregateType() {
         return aggregateType;
@@ -140,9 +138,6 @@ public class OutboxEvent {
         return version;
     }
 
-    public void setVersion(@NotNull Long version) {
-        this.version = version;
-    }
 }
 /*
 OutboxEvent

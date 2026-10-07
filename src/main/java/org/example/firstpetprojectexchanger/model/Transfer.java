@@ -18,7 +18,7 @@ public class Transfer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 64)
+    @Column(name = "idempotency_key", nullable = false, unique = true, length = 64)
     private String idempotencyKey;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -39,10 +39,10 @@ public class Transfer {
     @Column(nullable = false, precision = 28, scale = 12)
     private BigDecimal amount;
 
-    @Column(precision = 28, scale = 12)
+    @Column(name = "converted_amount", precision = 28, scale = 12)
     private BigDecimal convertedAmount;
 
-    @Column(precision = 28, scale = 12)
+    @Column(name = "fx_rate", precision = 28, scale = 12)
     private BigDecimal fxRate;
 
     @Column(nullable = false, precision = 28, scale = 12)
@@ -52,18 +52,20 @@ public class Transfer {
     @Column(nullable = false, length = 16)
     private TransferStatus status = TransferStatus.PENDING;
 
-    @Column(length = 1000)
+    @Column(name = "error_message", length = 1000)
     private String errorMessage;
 
     @Version
-    @NotNull
-    private Long version;
-
     @Column(nullable = false)
+    private long version;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "completed_at")
     private Instant completedAt;
 
+    ///?????????????????????????????????
     @OneToMany(mappedBy = "transfer")
     private List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
@@ -83,10 +85,7 @@ public class Transfer {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    
     public String getIdempotencyKey() {
         return idempotencyKey;
     }
@@ -179,10 +178,7 @@ public class Transfer {
         return version;
     }
 
-    public void setVersion(@NotNull Long version) {
-        this.version = version;
-    }
-
+   
     public Instant getCompletedAt() {
         return completedAt;
     }

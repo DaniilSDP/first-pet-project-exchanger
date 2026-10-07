@@ -37,13 +37,13 @@ public class LedgerEntry {
     private PaymentTransaction payment;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 6)
+    @Column(name = "entry_type", nullable = false, length = 8)
     private LedgerEntryType entryType;
 
     @Column(nullable = false, precision = 28, scale = 12)
     private BigDecimal amount;
 
-    @Column(nullable = false, precision = 28, scale = 12)
+    @Column(name = "balance_after", nullable = false, precision = 28, scale = 12)
     private BigDecimal balanceAfter;
 
     @Column(nullable = false, length = 3)
@@ -52,7 +52,7 @@ public class LedgerEntry {
     @Column(length = 500)
     private String description;
 
-    @Column(nullable = false, length = 120)
+    @Column(name = "operation_key", nullable = false, length = 120)
     private String operationKey;
 
     @Column(nullable = false)
@@ -74,9 +74,6 @@ public class LedgerEntry {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Wallet getWallet() {
         return wallet;

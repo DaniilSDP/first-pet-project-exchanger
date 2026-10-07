@@ -2,6 +2,8 @@ package org.example.firstpetprojectexchanger.dto;
 
 import org.springframework.data.domain.Page;
 
+
+
 import java.util.List;
 import java.util.function.Function;
 
@@ -17,26 +19,16 @@ public record PageResponse<T>(
 
 ) {
 
-    public static <E, T> PageResponse<T> of(
-            Page<E> page,
-            Function<E, T> mapper
-    ) {
-
-        List<T> content = page
-                .getContent()
-                .stream()
-                .map(mapper)
-                .toList();
-
+	public static <E, T> PageResponse<T> of(Page<E> page, Function<E, T> mapper) {
         return new PageResponse<>(
-                content,
+                page.getContent().stream().map(mapper).toList(),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements(),
                 page.getTotalPages(),
                 page.isFirst(),
-                page.isLast()
-        );
+                page.isLast());
+    
     }
 }
 

@@ -1,12 +1,12 @@
 package org.example.firstpetprojectexchanger.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-public class InsufficientFundsException extends RuntimeException {
+
+public class InsufficientFundsException extends ApiException {
+
     public InsufficientFundsException(String message) {
-        super(message);
+        super(HttpStatus.UNPROCESSABLE_CONTENT, message);
     }
 }
 /*

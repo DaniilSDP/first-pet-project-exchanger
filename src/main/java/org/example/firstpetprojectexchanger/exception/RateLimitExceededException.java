@@ -1,12 +1,12 @@
 package org.example.firstpetprojectexchanger.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-public class RateLimitExceededException extends RuntimeException {
+
+public class RateLimitExceededException extends ApiException {
+
     public RateLimitExceededException(String message) {
-        super(message);
+        super(HttpStatus.TOO_MANY_REQUESTS, message);
     }
 }
 /*

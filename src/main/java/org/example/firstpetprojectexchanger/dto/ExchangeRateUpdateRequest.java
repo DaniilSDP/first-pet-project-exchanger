@@ -1,19 +1,24 @@
 package org.example.firstpetprojectexchanger.dto;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.math.BigDecimal;
 
 public record ExchangeRateUpdateRequest(
 
-        @DecimalMin(value = "0,01")
+		@NotBlank 
+		@Pattern(regexp = "[A-Z]{3}")
         BigDecimal rate,
 
+        @NotBlank 
         @Pattern(regexp = "[A-Z]{3}")
         String baseCurrency,
 
-        @Pattern(regexp = "[A-Z]{3}")
+        @NotNull 
+        @DecimalMin(value = "0.000000000001", message = "Positive only")
         String quoteCurrency
 
 ) {

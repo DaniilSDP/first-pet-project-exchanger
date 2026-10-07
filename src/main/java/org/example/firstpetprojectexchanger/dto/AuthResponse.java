@@ -4,7 +4,7 @@ public record AuthResponse(
 
         String accessToken,
         String tokenType,
-        Long expiresInSeconds,
+        long expiresInSeconds,
         String refreshToken,
         UserDto user
 
@@ -14,7 +14,7 @@ public record AuthResponse(
 
             String accessToken,
             String tokenType,
-            Long expiresInSeconds,
+            long expiresInSeconds,
             String refreshToken,
             UserDto user
 
@@ -22,7 +22,7 @@ public record AuthResponse(
         return new AuthResponse(
 
                 accessToken,
-                tokenType,
+                "Bearer",
                 expiresInSeconds,
                 refreshToken,
                 user

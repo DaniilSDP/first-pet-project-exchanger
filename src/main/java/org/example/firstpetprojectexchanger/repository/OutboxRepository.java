@@ -4,6 +4,8 @@ import jakarta.persistence.LockModeType;
 import org.example.firstpetprojectexchanger.model.OutboxEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -11,8 +13,14 @@ import java.util.Optional;
 
 public interface OutboxRepository extends JpaRepository<OutboxEvent, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    List<OutboxEvent> lockNextBatch(Instant time, int limit);
+	@Query(value = """
+            select * from outbox_events
+            where status = 'PENDING' and available_at <= :now
+            order by id
+            limit :limit
+            for update skip locked
+            """, nativeQuery = true)
+    List<OutboxEvent> lockNextBatch(@Param("now") Instant now, @Param("limit") int limit);
 
     Long countByStatus (OutboxEvent.OutboxStatus status);
 

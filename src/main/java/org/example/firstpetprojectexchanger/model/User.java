@@ -22,13 +22,13 @@ public class User {
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
-    @Column(length = 120)
+    @Column(name = "first_name", length = 120)
     private String firstName;
 
-    @Column(length = 120)
+    @Column(name = "last_name", length = 120)
     private String lastName;
 
     @Enumerated(EnumType.STRING)
@@ -39,15 +39,15 @@ public class User {
     @Column(nullable = false, length = 16)
     private Status status = Status.ACTIVE;
 
-    @Column(nullable = false)
-    private Integer failedLoginAttempts = 0;
+    @Column(name = "failed_login_attempts", nullable = false)
+    private int failedLoginAttempts = 0;
 
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
 
-    @Column(nullable = false)
-    private Instant updatedAt;
-
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt = Instant.now();
+////?????????????????????????????????????????
     @OneToMany(mappedBy = "user")
     private List<Wallet> wallets = new ArrayList<>();
 

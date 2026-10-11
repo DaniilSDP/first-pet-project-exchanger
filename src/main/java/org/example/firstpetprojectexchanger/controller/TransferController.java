@@ -2,6 +2,8 @@ package org.example.firstpetprojectexchanger.controller;
 
 import java.time.Duration;
 import java.util.List;
+
+import org.example.firstpetprojectexchanger.config.LedgerProperties;
 import org.example.firstpetprojectexchanger.dto.TransferDto;
 import org.example.firstpetprojectexchanger.dto.TransferRequest;
 import org.example.firstpetprojectexchanger.model.User;

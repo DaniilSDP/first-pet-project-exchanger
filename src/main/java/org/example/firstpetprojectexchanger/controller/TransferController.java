@@ -2,9 +2,12 @@ package org.example.firstpetprojectexchanger.controller;
 
 import java.time.Duration;
 import java.util.List;
+
+import org.example.firstpetprojectexchanger.config.LedgerProperties;
 import org.example.firstpetprojectexchanger.dto.TransferDto;
 import org.example.firstpetprojectexchanger.dto.TransferRequest;
 import org.example.firstpetprojectexchanger.model.User;
+import org.example.firstpetprojectexchanger.security.RateLimitService;
 import org.example.firstpetprojectexchanger.service.IdempotencyService;
 import org.example.firstpetprojectexchanger.service.TransferService;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 @RestController
@@ -39,7 +44,7 @@ public class TransferController {
     }
 
     @PostMapping
-    //@Operation(summary = "Execute a transfer (Idempotency-Key header makes it safe to retry)")
+    @Operation(summary = "Execute a transfer (Idempotency-Key header makes it safe to retry)")
     public ResponseEntity<?> transfer(@AuthenticationPrincipal User user,
                                       @Valid @RequestBody TransferRequest request,
                                       @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {

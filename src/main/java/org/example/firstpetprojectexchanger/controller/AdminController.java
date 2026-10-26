@@ -3,6 +3,7 @@ package org.example.firstpetprojectexchanger.controller;
 import java.util.List;
 
 import org.example.firstpetprojectexchanger.dto.ExchangeRateDto;
+import org.example.firstpetprojectexchanger.dto.ExchangeRateUpdateRequest;
 import org.example.firstpetprojectexchanger.dto.PaymentDto;
 import org.example.firstpetprojectexchanger.dto.TransferDto;
 import org.example.firstpetprojectexchanger.service.ExchangeRateService;

@@ -7,6 +7,7 @@ import org.example.firstpetprojectexchanger.dto.LedgerEntryDto;
 import org.example.firstpetprojectexchanger.dto.PageResponse;
 import org.example.firstpetprojectexchanger.dto.WalletDto;
 import org.example.firstpetprojectexchanger.model.User;
+import org.example.firstpetprojectexchanger.repository.LedgerEntryRepository;
 import org.example.firstpetprojectexchanger.service.WalletService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;

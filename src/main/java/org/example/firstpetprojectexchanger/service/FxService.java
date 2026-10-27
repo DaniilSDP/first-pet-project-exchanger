@@ -7,8 +7,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import org.apache.coyote.BadRequestException;
+
 import org.example.firstpetprojectexchanger.config.LedgerProperties;
+import org.example.firstpetprojectexchanger.exception.BadRequestException;
 import org.example.firstpetprojectexchanger.model.ExchangeRate;
 import org.example.firstpetprojectexchanger.repository.ExchangeRateRepository;
 import org.slf4j.Logger;

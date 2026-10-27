@@ -13,10 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Seeds the admin account and creates the system fee-account wallets in every
- * supported currency (required for fee crediting on transfers).
- */
+
 @Component
 public class DataSeeder implements CommandLineRunner {
 

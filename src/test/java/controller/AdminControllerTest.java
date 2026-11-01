@@ -3,8 +3,6 @@ package controller;
 import org.example.firstpetprojectexchanger.controller.AdminController;
 import org.example.firstpetprojectexchanger.dto.ExchangeRateDto;
 import org.example.firstpetprojectexchanger.dto.ExchangeRateUpdateRequest;
-import org.example.firstpetprojectexchanger.dto.RegisterRequest;
-import org.example.firstpetprojectexchanger.dto.TransferDto;
 import org.example.firstpetprojectexchanger.service.ExchangeRateService;
 import org.example.firstpetprojectexchanger.service.PaymentSagaService;
 import org.example.firstpetprojectexchanger.service.TransferService;
@@ -44,7 +42,6 @@ public class AdminControllerTest {
 
     @MockitoBean
     private PaymentSagaService paymentSagaService;
-
 
 
     @Test

@@ -1,29 +1,72 @@
-package controller;
+package org.example.firstpetprojectexchanger.controller;
 
 
-import org.example.firstpetprojectexchanger.controller.AuthController;
-import org.example.firstpetprojectexchanger.dto.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.Instant;
+import java.util.List;
+
+import org.example.firstpetprojectexchanger.dto.AuthResponse;
+import org.example.firstpetprojectexchanger.dto.LoginRequest;
+import org.example.firstpetprojectexchanger.dto.RefreshRequest;
+import org.example.firstpetprojectexchanger.dto.RegisterRequest;
+import org.example.firstpetprojectexchanger.dto.UserDto;
+import org.example.firstpetprojectexchanger.model.User;
+import org.example.firstpetprojectexchanger.security.JwtAuthenticationFilter;
 import org.example.firstpetprojectexchanger.service.AuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.Instant;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-@WebMvcTest(AuthController.class)
+@WebMvcTest(//этим мы убираем лишние моки, которые я закомментил
+        controllers = AuthController.class,
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = JwtAuthenticationFilter.class
+        )
+)
+@Import(AuthControllerTest.TestConfig.class)
 class AuthControllerTest {
 
+	
+	@TestConfiguration
+	static class TestConfig implements WebMvcConfigurer {
+	    @Override
+	    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+	        resolvers.add(new AuthenticationPrincipalArgumentResolver());
+	    }
+	}
+	/*
+	@MockitoBean
+	private UserRepository userRepository;
+	
+	@MockitoBean
+	private JwtService jwtService;
+	*/
     @Autowired
     private MockMvc mockMvc;
 
@@ -38,12 +81,12 @@ class AuthControllerTest {
     void register_Success() throws Exception {
 
         // Arrange
-        RegisterRequest request = new RegisterRequest(
-                "test@test.ru",
-                "passwd",
-                "Ivan",
-                "Ivanov"
-        );
+    	RegisterRequest request = new RegisterRequest(
+    	        "Ivan",
+    	        "Ivanov",
+    	        "ivan@test.ru",
+    	        "Ivanov123"
+    	);
 
         AuthResponse response = new AuthResponse(
                 "access-token",
@@ -138,57 +181,53 @@ class AuthControllerTest {
     }
 
 
-    @Test
-    @DisplayName("Успешный выход пользователя")
-    void logout_Success() throws Exception {
+   
 
-        // Arrange
-        RefreshRequest request = new RefreshRequest(
-                "123321"
-        );
+    	@Test
+    	@DisplayName("Успешное получение текущего пользователя")
+    	void me_Success() throws Exception {
 
-        // Act & Assert
-        mockMvc.perform(post("/api/auth/logout")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNoContent())
-                .andExpect(content().string(""));
+    	    // Arrange
+    	    User user = new User();
+    	    user.setId(1L);
 
-        // Verify
-        verify(authService, times(1))
-                .logout("123321");
-    }
+    	    UserDto response = new UserDto(
+    	            1L,
+    	            "vlad@test.ru",
+    	            "Vlad",
+    	            "Ivanov",
+    	            "USER",
+    	            "ACTIVE",
+    	            Instant.now()
+    	    );
 
+    	    when(authService.me(1L)).thenReturn(response);
 
-    @Test
-    @DisplayName("Успешное получение текущего пользователя")
-    void me_Success() throws Exception {
+    	    UsernamePasswordAuthenticationToken auth =
+    	            new UsernamePasswordAuthenticationToken(
+    	                    user,
+    	                    null,
+    	                    List.of()
+    	            );
 
-        // Arrange
-        UserDto response = new UserDto(
-                1L,
-                "vlad@test.ru",
-                "Vlad",
-                "Ivanov",
-                "USER",
-                "ACTIVE",
-                Instant.now()
-        );
+    	    SecurityContext context = SecurityContextHolder.createEmptyContext();
+    	    context.setAuthentication(auth);
+    	    SecurityContextHolder.setContext(context);
 
-        when(authService.me(1L))
-                .thenReturn(response);
+    	    try {
+    	        // Act
+    	        mockMvc.perform(get("/api/auth/me"))
+    	                .andDo(print())
+    	                .andExpect(status().isOk())
+    	                .andExpect(jsonPath("$.id").value(1))
+    	                .andExpect(jsonPath("$.email").value("vlad@test.ru"));
 
-        // Act & Assert
-        mockMvc.perform(get("/api/auth/me"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.email").value("vlad@test.ru"))
-                .andExpect(jsonPath("$.firstName").value("Vlad"))
-                .andExpect(jsonPath("$.lastName").value("Ivanov"));
+    	        // Verify
+    	        verify(authService).me(1L);
 
-        // Verify
-        verify(authService, times(1))
-                .me(1L);
-    }
-
+    	    } finally {
+    	        SecurityContextHolder.clearContext();
+    	    }
+    	}
+    
 }

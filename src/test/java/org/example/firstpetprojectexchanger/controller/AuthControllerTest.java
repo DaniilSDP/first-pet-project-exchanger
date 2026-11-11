@@ -214,7 +214,7 @@ class AuthControllerTest {
     	    context.setAuthentication(auth);
     	    SecurityContextHolder.setContext(context);
 
-    	    try {
+    	   // try {
     	        // Act
     	        mockMvc.perform(get("/api/auth/me"))
     	                .andDo(print())
@@ -225,9 +225,9 @@ class AuthControllerTest {
     	        // Verify
     	        verify(authService).me(1L);
 
-    	    } finally {
-    	        SecurityContextHolder.clearContext();
-    	    }
+    	  //  } finally {
+    	     //   SecurityContextHolder.clearContext();
+    	   // }
     	}
     
 }

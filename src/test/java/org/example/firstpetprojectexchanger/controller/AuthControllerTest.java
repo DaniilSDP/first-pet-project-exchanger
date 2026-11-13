@@ -49,6 +49,7 @@ import tools.jackson.databind.ObjectMapper;
                 classes = JwtAuthenticationFilter.class
         )
 )
+
 @Import(AuthControllerTest.TestConfig.class)
 class AuthControllerTest {
 
@@ -60,6 +61,7 @@ class AuthControllerTest {
 	        resolvers.add(new AuthenticationPrincipalArgumentResolver());
 	    }
 	}
+
 	/*
 	@MockitoBean
 	private UserRepository userRepository;
@@ -67,6 +69,7 @@ class AuthControllerTest {
 	@MockitoBean
 	private JwtService jwtService;
 	*/
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -80,7 +83,7 @@ class AuthControllerTest {
     @DisplayName("Успешная регистрация пользователя")
     void register_Success() throws Exception {
 
-        // Arrange
+        // Arrange Договариваться
     	RegisterRequest request = new RegisterRequest(
     	        "Ivan",
     	        "Ivanov",
